@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby 
+
+require 'rubygems'
+require 'thor'
+require 'mechanize'
+
+require 'lib/loggable'
+require 'lib/retryable'
+require 'lib/bank_agent/account'
+require 'lib/bank_agent/paypal'
+require 'lib/bank_agent/ofx'
+require 'lib/bank_agent/capital_one'
+require 'lib/bank_scrapers/online_account_robot'
+require 'lib/bank_scrapers/paypal'
+require 'lib/bank_scrapers/ofx'
+require 'lib/bank_scrapers/capital_one'
+
+module BankAgent
+  CONFIG_PATH = File.dirname(__FILE__) + '/config.yml'
+  class << self
+    def config
+      @config ||= YAML.load(File.read(CONFIG_PATH))
+    end
+  end
+
+  class CLI < Thor
+    desc "download", "Download automatic accounts"
+    method_options :name => :string, :type => :string
+    def download
+      list = if options[:name]
+        Account.all.select {|a| a.name == options[:name] }
+      else
+        Account.all
+      end
+
+      list.each(&:update)
+    end
+
+    desc "ofx <path>", "Import an ofx file"
+    def ofx(path)
+
+    end
+  end
+end
+
+BankAgent::CLI.start

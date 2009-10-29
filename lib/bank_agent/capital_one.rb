@@ -1,0 +1,3 @@
+class CapitalOne < Account
+
+end

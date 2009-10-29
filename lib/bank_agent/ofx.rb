@@ -1,0 +1,3 @@
+class Ofx < Account
+
+end
