@@ -1,5 +1,3 @@
-require File.dirname(__FILE__) + '/ofx_client'
-
 module BankScrapers
   class Ofx
     include Loggable
@@ -8,7 +6,7 @@ module BankScrapers
       @options = opts
     end
 
-    def download
+    def download_data
       ofx_data
     rescue Net::HTTPError => e
       # Discover card gives us forbidden results sometimes
