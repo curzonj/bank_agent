@@ -6,11 +6,10 @@ require 'fastercsv'
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'loggable'
 require 'retryable'
-require 'ledgers_client'
 require 'ofx_client'
 require 'qif_parser'
 
-%w{ account scrapers/base scrapers/paypal scrapers/ofx scrapers/capital_one adapters/base adapters/paypal adapters/ofx adapters/qif }.each do |lib|
+%w{ account scrapers/base scrapers/paypal scrapers/ofx scrapers/capital_one adapters/base adapters/paypal adapters/ofx adapters/qif clients/ledgers }.each do |lib|
   require "bank_agent/" + lib
 end
 

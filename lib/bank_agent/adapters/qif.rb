@@ -12,10 +12,6 @@ module BankAgent::Adapters
       }
     end
 
-    def record_balance
-      # Qif files don't contain balances
-    end
-
     def transactions
       acct = qif_data.accounts.first['name'] rescue nil
       qif_data.transactions(acct)

@@ -16,13 +16,13 @@ class CLI < Thor
       BankAgent.config['accounts']
     end
 
-    list.map {|a| BankAgent::Account.new(a) }.each(&:update)
+    BankAgent::Acount.update(list)
   end
 
   desc "ofx <path>, [<path>, <path>, ...]", "Import ofx files"
   def ofx(*paths)
     paths.each do |path|
-      BankAgent::Ofx.new(File.read(path)).import_transactions
+      BankAgent::Account.import(path, 'type' => 'Ofx')
     end
   end
 
@@ -30,9 +30,7 @@ class CLI < Thor
   method_option :name, :required => true
   def paypal(path)
     opts = BankAgent.by_name(options[:name]).first
-    data = File.read(path)
-
-    BankAgent::Paypal.new(data, opts).import_transactions
+    BankAgent::Account.import(path, opts)
   end
 end
 
