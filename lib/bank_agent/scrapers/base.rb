@@ -1,5 +1,5 @@
-module BankScrapers
-  class OnlineAccountRobot
+module BankAgent::Scrapers
+  class Base
     include Loggable
 
     def initialize(opts)

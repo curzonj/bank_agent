@@ -1,4 +1,4 @@
-module BankAgent
+module BankAgent::Adapters
   class Paypal < Base
     def import_options(line)
       amount = line[' Amount'].gsub(',','')

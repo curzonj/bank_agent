@@ -1,6 +1,5 @@
-module BankScrapers
-  class Paypal < OnlineAccountRobot
-
+module BankAgent::Scrapers
+  class Paypal < Base
     def login
       page = request { agent.get "https://www.paypal.com/us/cgi-bin/webscr?cmd=_login-run" }
       form = page.form('login_form')
@@ -31,6 +30,5 @@ module BankScrapers
 
       page.body
     end
-
   end
 end

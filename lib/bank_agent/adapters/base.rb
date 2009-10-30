@@ -1,4 +1,4 @@
-module BankAgent 
+module BankAgent::Adapters
   class Base
     def initialize(data, opts={})
       @raw_data = data

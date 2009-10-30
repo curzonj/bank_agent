@@ -2,66 +2,38 @@
 
 require 'rubygems'
 require 'thor'
-require 'mechanize'
-require 'fastercsv'
-# ofx_client has lots of dependencies
-# that it requires directly
 
-require 'lib/loggable'
-require 'lib/retryable'
-require 'lib/account'
-require 'lib/ledgers_client'
-require 'lib/bank_agent/base'
-require 'lib/bank_agent/paypal'
-require 'lib/bank_agent/ofx'
-require 'lib/bank_agent/capital_one'
-require 'lib/bank_scrapers/online_account_robot'
-require 'lib/bank_scrapers/paypal'
-require 'lib/bank_scrapers/ofx_client'
-require 'lib/bank_scrapers/ofx'
-require 'lib/bank_scrapers/capital_one'
+require 'lib/bank_agent'
+BankAgent.config = File.dirname(__FILE__) + '/config.yml'
 
-module BankAgent
-  CONFIG_PATH = File.dirname(__FILE__) + '/config.yml'
-  class << self
-    def config
-      @config ||= YAML.load(File.read(CONFIG_PATH))
+class CLI < Thor
+  desc "download", "Download automatic accounts"
+  method_options :name => :string, :type => :string
+  def download
+    list = if options[:name]
+      BankAgent.by_name(options[:name])
+    else
+      BankAgent.config['accounts']
     end
 
-    def by_name(name)
-        config['accounts'].select {|a| a['name'] == name }
+    list.map {|a| BankAgent::Account.new(a) }.each(&:update)
+  end
+
+  desc "ofx <path>, [<path>, <path>, ...]", "Import ofx files"
+  def ofx(*paths)
+    paths.each do |path|
+      BankAgent::Ofx.new(File.read(path)).import_transactions
     end
   end
 
-  class CLI < Thor
-    desc "download", "Download automatic accounts"
-    method_options :name => :string, :type => :string
-    def download
-      list = if options[:name]
-        BankAgent.by_name(options[:name])
-      else
-        BankAgent.config['accounts']
-      end
+  desc "paypal <file_path>", "Import paypal balance affecting csv files"
+  method_option :name, :required => true
+  def paypal(path)
+    opts = BankAgent.by_name(options[:name]).first
+    data = File.read(path)
 
-      list.map {|a| Account.new(a) }.each(&:update)
-    end
-
-    desc "ofx <path>, [<path>, <path>, ...]", "Import ofx files"
-    def ofx(*paths)
-      paths.each do |path|
-        BankAgent::Ofx.new(File.read(path)).import_transactions
-      end
-    end
-
-    desc "paypal <file_path>", "Import paypal balance affecting csv files"
-    method_option :name, :required => true
-    def paypal(path)
-      opts = BankAgent.by_name(options[:name]).first
-      data = File.read(path)
-
-      BankAgent::Paypal.new(data, opts).import_transactions
-    end
+    BankAgent::Paypal.new(data, opts).import_transactions
   end
 end
 
-BankAgent::CLI.start
+CLI.start

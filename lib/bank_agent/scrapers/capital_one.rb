@@ -1,5 +1,5 @@
-module BankScrapers
-  class CapitalOne < OnlineAccountRobot
+module BankAgent::Scrapers
+  class CapitalOne < Base
     def login
       # cofisso_btn_login.x=25&cofisso_btn_login.y=10
       page = request { agent.post("https://login.capitalone.com/loginweb/login/login.do",

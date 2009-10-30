@@ -1,4 +1,4 @@
-module BankScrapers
+module BankAgent::Scrapers
   class Ofx
     include Loggable
 

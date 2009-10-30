@@ -1,4 +1,4 @@
-module BankAgent
+module BankAgent::Adapters
   class Ofx < Base
     def record_balance
       t = transactions.first
