@@ -3,14 +3,13 @@ require 'httparty'
 module Clients
   class Ledgers
     include HTTParty
-  #  base_uri 'https://ledgers.heroku.com'
-    base_uri "localhost:3000"
     format :json
 
     def initialize(config, options)
       @config = config
       @options = options
 
+      self.class.base_uri @config['base_uri']
       self.class.basic_auth @config['username'], @config['password']
     end
 
