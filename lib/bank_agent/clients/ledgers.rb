@@ -16,7 +16,7 @@ module Clients
     def import(bank_data)
       account = find_account(bank_data[:account])
       unless account[:balance].blank?
-        bank_data[:transactions].last.merge(
+        bank_data[:transactions].last.merge!(
                   :balance => account[:balance],
                   :balance_related_type => 'BankDownload')
       end
