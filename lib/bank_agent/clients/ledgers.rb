@@ -17,7 +17,7 @@ module Clients
     def import(bank_data)
       account = find_account(bank_data[:account])
       bank_data[:transactions].each do |txn|
-        success = self.class.create_transaction(
+        transaction = self.class.create_transaction(
           account,
           'payee_name' => txn[:payee_name],
           'amount' => txn[:amount],
@@ -26,7 +26,7 @@ module Clients
           'ofx_fit_id' => txn[:ofx_fit_id],
           'memo' => txn[:memo])
 
-        puts "Failed to create #{txn[:recorded_on]} #{txn[:payee_name]}" unless success
+        puts "Failed to create #{txn[:recorded_on]} #{txn[:payee_name]}" unless transaction
       end
     end
 
@@ -36,10 +36,15 @@ module Clients
         'routing_number' => hash[:routing]
       }
 
-      account = self.class.account(opts)
+      account = if @options['account_id']
+        self.class.account('id' => @options['account_id'])
+      else
+        self.class.account(opts)
+      end
 
       if account.nil?
-        opts['name'] = @options['name'] unless @options['name'].blank?
+        raise "name is required to create an account" if @options['name'].blank?
+        opts['name'] = @options['name'] 
         account = self.class.create_account(opts)
       end
 
@@ -58,13 +63,16 @@ module Clients
       end
 
       def create_transaction(account, opts)
+        opts.delete_if {|k,v| v.blank? }
         result = post("/transactions.json", :query => { :transaction => opts, :financial_account_id => account['id'] })
         result['transaction'] if valid?(result)
       end
 
       def valid?(result)
         puts result.inspect
-        if result["HTTP Basic"] == "Access denied."
+        if result.nil?
+          raise "Server failed to respond"
+        elsif result["HTTP Basic"] == "Access denied."
           raise "Authentication Failed"
         elsif result['error']
           raise result['error']
