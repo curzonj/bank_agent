@@ -27,6 +27,13 @@ class CLI < Thor
     end
   end
 
+  desc 'parse_ofx <path', "Parse a downloaded ofx file and render the bank data"
+  def parse_ofx(path)
+    require 'pp'
+    parser = BankAgent::Account.new('type' => 'Ofx').adapter(File.read(path))
+    pp parser.bank_data
+  end
+
   desc "paypal <file_path>", "Import paypal balance affecting csv files"
   method_option :name, :required => true
   def paypal(path)

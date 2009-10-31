@@ -15,6 +15,10 @@ module Clients
 
     def import(bank_data)
       account = find_account(bank_data[:account])
+      bank_data[:transactions].last.merge(
+        :balance => account[:balance],
+        :balance_related_type => 'BankDownload')
+
       bank_data[:transactions].each do |txn|
         transaction = self.class.create_transaction(
           account,
